@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Greeting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            transition: background 1.5s ease;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 550px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 2.5rem;
+            transform: translateY(0);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 2.2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border-radius: 3px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+            color: #555;
+            transition: color 0.3s;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.5rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        input:focus, select:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+            outline: none;
+        }
+        
+        .form-group i {
+            position: absolute;
+            top: 42px;
+            left: 12px;
+            color: #888;
+            transition: color 0.3s;
+        }
+        
+        input:focus + i, select:focus + i {
+            color: #6a11cb;
+        }
+        
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #2575fc, #6a11cb);
+            transition: all 0.4s;
+            z-index: -1;
+        }
+        
+        button:hover::before {
+            left: 0;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .greeting-container {
+            margin-top: 2.5rem;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .greeting {
+            font-size: 2.2rem;
+            font-weight: 700;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .greeting.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #555;
+            transition: color 0.3s;
+            width: auto;
+            padding: 0;
+        }
+        
+        .theme-toggle:hover {
+            color: #6a11cb;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        body.dark-theme {
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+        }
+        
+        .dark-theme .container {
+            background-color: rgba(40, 44, 52, 0.95);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-theme h1,
+        .dark-theme label {
+            color: #e0e0e0;
+        }
+        
+        .dark-theme input,
+        .dark-theme select {
+            background-color: rgba(30, 34, 42, 0.9);
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        
+        .dark-theme .theme-toggle {
+            color: #e0e0e0;
+        }
+        
+        .dark-theme .greeting {
+            color: #e0e0e0;
+        }
+        
+        .subtext {
+            font-size: 1.1rem;
+            color: #777;
+            margin-top: 0.5rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease 0.2s;
+            max-width: 80%;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .subtext.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .dark-theme .subtext {
+            color: #aaa;
+        }
+        
+        .greeting-card {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            transition: all 0.4s ease;
+            transform: perspective(1000px) rotateY(0deg);
+            transform-style: preserve-3d;
+            padding: 2rem 1rem;
+            border-radius: 15px;
+        }
+        
+        .greeting-card.animated {
+            animation: cardFlip 1.2s ease-in-out forwards;
+        }
+        
+        @keyframes cardFlip {
+            0% { transform: perspective(1000px) rotateY(0deg); }
+            50% { transform: perspective(1000px) rotateY(180deg); }
+            100% { transform: perspective(1000px) rotateY(360deg); }
+        }
+        
+        .animate-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            transition: height 0.8s ease;
+            border-radius: 15px;
+            opacity: 0.05;
+        }
+        
+        .greeting-container.active .animate-bg {
+            height: 100%;
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.05; }
+            50% { opacity: 0.1; }
+            100% { opacity: 0.05; }
+        }
+        
+        .greeting-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.4s ease;
+            color: #6a11cb;
+        }
+        
+        .greeting-icon.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 580px) {
+            .container {
+                padding: 1.8rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .greeting {
+                font-size: 1.6rem;
+                padding: 0.5rem;
+            }
+            
+            .greeting-icon {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        
+        <h1>Personalized Greeting</h1>
+        
+        <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+            <i class="fas fa-user"></i>
+        </div>
+        
+        <div class="form-group">
+            <label for="color">Favorite Color</label>
+            <select id="color" required>
+                <option value="" disabled selected>Select a color</option>
+                <option value="#e74c3c">Red</option>
+                <option value="#3498db">Blue</option>
+                <option value="#2ecc71">Green</option>
+                <option value="#f39c12">Orange</option>
+                <option value="#9b59b6">Purple</option>
+                <option value="#1abc9c">Teal</option>
+                <option value="#e84393">Pink</option>
+                <option value="#f1c40f">Yellow</option>
+                <option value="#34495e">Navy</option>
+            </select>
+            <i class="fas fa-paint-brush"></i>
+        </div>
+        
+        <button id="generate">Generate Greeting <i class="fas fa-magic"></i></button>
+        
+        <div class="greeting-container" id="greeting-container">
+            <div class="animate-bg"></div>
+            <div class="greeting-card" id="greeting-card">
+                <i id="greeting-icon" class="greeting-icon fas fa-sun"></i>
+                <div id="greeting" class="greeting"></div>
+                <div id="subtext" class="subtext">Welcome to our personalized greeting page!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('name');
+            const colorSelect = document.getElementById('color');
+            const generateBtn = document.getElementById('generate');
+            const greetingDiv = document.getElementById('greeting');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = themeToggle.querySelector('i');
+            const greetingCard = document.getElementById('greeting-card');
+            const subtextDiv = document.getElementById('subtext');
+            const greetingContainer = document.getElementById('greeting-container');
+            const greetingIcon = document.getElementById('greeting-icon');
+            
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                
+                if (document.body.classList.contains('dark-theme')) {
+                    themeIcon.className = 'fas fa-sun';
+                } else {
+                    themeIcon.className = 'fas fa-moon';
+                }
+            });
+            
+            function updateGreeting() {
+                const name = nameInput.value.trim();
+                const color = colorSelect.value;
+                
+                if (!name || !color) return;
+                
+                const lighterColor = adjustColor(color, 40);
+                const darkerColor = adjustColor(color, -20);
+                const gradient = `linear-gradient(135deg, ${lighterColor}, ${color}, ${darkerColor})`;
+                
+                greetingDiv.style.background = gradient;
+                greetingDiv.style.webkitBackgroundClip = 'text';
+                greetingDiv.style.webkitTextFillColor = 'transparent';
+                greetingDiv.style.backgroundClip = 'text';
+                
+                updateGreetingIcon();
+                greetingIcon.style.color = color;
+                
+                const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
+                const timeOfDay = getTimeOfDay();
+                greetingDiv.textContent = `Good ${timeOfDay}, ${capitalizedName}!`;
+                
+                const subtexts = [
+                    "Hope you're having a wonderful day!",
+                    `The color ${getColorName(color)} suits you well!`,
+                    "Thanks for visiting the page!",
+                    `It's a beautiful ${timeOfDay.toLowerCase()}, isn't it?`,
+                    "You're amazing, know that!",
+                    `Enjoy your ${timeOfDay.toLowerCase()}!`,
+                    `${getColorName(color).charAt(0).toUpperCase() + getColorName(color).slice(1)} is an excellent choice!`
+                ];
+                subtextDiv.textContent = subtexts[Math.floor(Math.random() * subtexts.length)];
+                
+                const lightBackground = adjustColor(color, 85);
+                document.body.style.background = `linear-gradient(135deg, #f5f7fa 0%, ${lightBackground} 100%)`;
+                
+                if (document.body.classList.contains('dark-theme')) {
+                    const darkBackground = adjustColor(color, -70);
+                    document.body.style.background = `linear-gradient(135deg, #2c3e50 0%, ${darkBackground} 100%)`;
+                }
+                
+                greetingContainer.classList.add('active');
+                
+                greetingCard.style.backgroundColor = `${adjustColor(color, 85)}50`; 
+                
+                if (document.body.classList.contains('dark-theme')) {
+                    greetingCard.style.backgroundColor = `${adjustColor(color, -50)}50`;
+                }
+            }
+            
+            function updateGreetingIcon() {
+                const hour = new Date().getHours();
+                if (hour < 12) {
+                    greetingIcon.className = 'greeting-icon fas fa-sun';
+                } else if (hour < 18) {
+                    greetingIcon.className = 'greeting-icon fas fa-cloud-sun';
+                } else {
+                    greetingIcon.className = 'greeting-icon fas fa-moon';
+                }
+            }
+            
+            function adjustColor(color, amount) {
+                return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+            }
+            
+            function getTimeOfDay() {
+                const hour = new Date().getHours();
+                if (hour < 12) return "Morning";
+                if (hour < 18) return "Afternoon";
+                return "Evening";
+            }
+            
+            function getColorName(hex) {
+                const colorNames = {
+                    '#e74c3c': 'red',
+                    '#3498db': 'blue',
+                    '#2ecc71': 'green',
+                    '#f39c12': 'orange',
+                    '#9b59b6': 'purple',
+                    '#1abc9c': 'teal',
+                    '#e84393': 'pink',
+                    '#f1c40f': 'yellow',
+                    '#34495e': 'navy'
+                };
+                
+                return colorNames[hex] || 'selected';
+            }
+            
+            generateBtn.addEventListener('click', () => {
+                const name = nameInput.value.trim();
+                const color = colorSelect.value;
+                
+                if (!name) {
+                    animateInvalidInput(nameInput);
+                    return;
+                }
+                
+                if (!color) {
+                    animateInvalidInput(colorSelect);
+                    return;
+                }
+                
+                greetingDiv.classList.remove('show');
+                greetingIcon.classList.remove('show');
+                subtextDiv.classList.remove('show');
+                
+                generateBtn.classList.add('clicked');
+                setTimeout(() => generateBtn.classList.remove('clicked'), 300);
+                
+                greetingCard.classList.add('animated');
+                
+                setTimeout(() => {
+                    updateGreeting();
+                    greetingIcon.classList.add('show');
+                    
+                    setTimeout(() => {
+                        greetingDiv.classList.add('show');
+                        
+                        setTimeout(() => {
+                            subtextDiv.classList.add('show');
+                            
+                            setTimeout(() => {
+                                greetingCard.classList.remove('animated');
+                            }, 1200);
+                        }, 300);
+                    }, 300);
+                }, 300);
+            });
+            
+            function animateInvalidInput(element) {
+                element.style.borderColor = '#e74c3c';
+                element.animate([
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(-10px)' },
+                    { transform: 'translateX(10px)' },
+                    { transform: 'translateX(-10px)' },
+                    { transform: 'translateX(0)' }
+                ], {
+                    duration: 300,
+                    easing: 'ease-in-out'
+                });
+                
+                setTimeout(() => {
+                    element.style.borderColor = '#ddd';
+                    element.focus();
+                }, 300);
+            }
+            
+            nameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generateBtn.click();
+                }
+            });
+            
+            colorSelect.addEventListener('change', function() {
+                this.style.borderColor = this.value;
+            });
+            
+            [nameInput, colorSelect].forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentNode.querySelector('label').style.color = '#6a11cb';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentNode.querySelector('label').style.color = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
